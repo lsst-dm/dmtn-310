@@ -1,0 +1,23 @@
+[technote]
+id = "DMTN-310"
+series_id = "DMTN"
+canonical_url = "https://dmtn-310.lsst.io"
+github_url = "https://github.com/lsst-dm/dmtn-310"
+github_default_branch = "main"
+date_created = 2025-03-06T22:43:11Z
+organization.name = "Vera C. Rubin Observatory"
+organization.ror = "https://ror.org/048g3cy84"
+license.id = "CC-BY-4.0"
+
+[technote.status]
+state = "draft"
+
+[[technote.authors]]
+name.given = "David H."
+name.family = "Irving"
+internal_id = "irvingd"
+orcid = "https://orcid.org/0009-0005-9099-4970"
+[[technote.authors.affiliations]]
+name = "Vera C. Rubin Observatory/NSF NOIRLab"
+internal_id = "RubinOps"
+address = "950 N. Cherry Ave., Tucson, AZ 85719, USA"
