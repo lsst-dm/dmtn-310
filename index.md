@@ -46,6 +46,9 @@ waiting for the database update to complete.
 Kafka messages would be formatted as JSON, to re-use existing Butler code for
 serializing the records that need to be inserted in the database.
 
+For operations log messages and Prometheus metrics for Kafka consumer lag would
+be added to identify issues and delays ingesting the Kafka messages.
+
 ### Transferring Butler data to the writer service
 
 At the end of execution, each Prompt Processing pod does the following writes
@@ -93,15 +96,23 @@ the writer service can use the same function that the pods are currently
 using to update the database.
 
 ### Kafka setup
+Phalanx with the Strimzi operator would be used to install Kafka into the
+existing Butler development and production USDF vClusters.  A Kafka topic and
+username for Prompt Processing would be added.  A retention period would be
+configured on the topic to retain messages for a certain amount of days to allow
+for events to be processed if the Butler database or the writer service is down.
 
-DAN TO PROVIDE INFO FOR THIS SECTION
+For communication with Prompt Processing and other applications a load balancer
+with DNS name  would be added.
 
 ## Fringe Benefits
-
 As a side-effect, Kafka orders the events in a way that makes it easy to create
 a log of the data products that were generated.  This may make it
 easier to incrementally populate downstream databases, when data is moved out
 of the embargo rack and made available to end-users.
+
+The retention period on the Prompt Processing Kakfa topic can also be use used as a
+transaction log to replay event processing in the event of database corruption.
 
 ## Disadvantages to this approach
 Adding an external service will complicate build and deployment.  It also makes
