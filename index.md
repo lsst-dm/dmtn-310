@@ -70,7 +70,7 @@ writer service.
 #### Inserting dataset records
 Currently, the insertion of dataset records in Prompt Processing uses the
 method `Butler.transfer_from()`. `transfer_from` is a compound operation that
-both copies the artifact files and does updates the database.
+both copies the artifact files and updates the database.
 
 In the new scheme, the Prompt Processing pod is still required to copy the
 artifact files to the central S3 repository, but it does not write the
@@ -86,9 +86,12 @@ the dataset records into the database.
 In addition, `Datastore.export()` copies the files to a specified location.
 Prompt Processing pods could write the files to a staging area separate from
 the central Butler datastore directory, and the writer service could move them
-to their final location.  Alternatively, the pods could write the files
-directly to their final destination in the datastore, but this increases the
-chances of consistency problems between the database and the files on disk.
+to their final location. This has the downside of potentially doubling the
+bandwidth requirements for the file copy, depending on the S3 implementation.
+
+Alternatively, the pods could write the files directly to their final
+destination in the datastore, but this increases the chances of consistency
+problems between the database and the files on disk.
 
 #### Chained collection update
 The name of the collection can be transferred in JSON as a plain string, and
@@ -102,8 +105,16 @@ username for Prompt Processing would be added.  A retention period would be
 configured on the topic to retain messages for a certain amount of days to allow
 for events to be processed if the Butler database or the writer service is down.
 
+If we partition the Kafka topic for scalability, we need to be careful with the
+event ordering because Kafka only guarantees a consistent ordering within each
+partition, not across partitions. One option would be to partition by a key
+derived from Butler metadata (e.g. detector number).  Alternatively, if there 
+are no dependencies between events we can use round-robin partioning -- sending
+dimension records, dataset records, and the collection chain update together in
+a single event would guarantee that for the immediate use case.
+
 For communication with Prompt Processing and other applications a load balancer
-with DNS name  would be added.
+with DNS name would be added.
 
 ## Fringe Benefits
 As a side-effect, Kafka orders the events in a way that makes it easy to create
@@ -111,7 +122,7 @@ a log of the data products that were generated.  This may make it
 easier to incrementally populate downstream databases, when data is moved out
 of the embargo rack and made available to end-users.
 
-The retention period on the Prompt Processing Kakfa topic can also be use used as a
+The retention period on the Prompt Processing Kakfa topic can also be used as a
 transaction log to replay event processing in the event of database corruption.
 
 ## Disadvantages to this approach
