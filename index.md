@@ -139,8 +139,10 @@ executed on the pods.
 
 However, with writes eliminated, we no longer need to connect to the primary
 database.  We can set up a dedicated read replica for Prompt Processing,
-insulating time-critical processing from other users/services that may
-consume resources unpredictably on the primary database.
+insulating time-critical processing from other users/services that may consume
+resources unpredictably on the primary database.  Using physical replication,
+the replication lag should be less than a second when things are operating
+normally, though it could become unbounded when the system is under stress.
 
 Testing in Operations Rehearsal 5 showed that with only the input queries, the
 database access from the pods was able to scale acceptably.  We may not need
